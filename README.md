@@ -1,8 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Maze Generator
 
-## Getting Started
+A modern web-based application for generating perfect, printable 2D mazes with varying difficulty levels. Built with Next.js 15, TypeScript, Tailwind CSS, and Shadcn UI.
 
-First, run the development server:
+## 🎯 Features
+
+- **Perfect Maze Generation**: Uses the Recursive Backtracker algorithm to create mazes with exactly one solution path
+- **5 Difficulty Levels**:
+  - Very Easy (10×10)
+  - Easy (15×15)
+  - Medium (25×25)
+  - Hard (40×40)
+  - Very Hard (60×60)
+- **Visual Start/End Markers**: Green circle for start, red circle for end
+- **Print-Optimized**: Clean black and white output perfect for printing
+- **Modern UI**: Beautiful, responsive design using Shadcn UI components
+- **Fast Generation**: All mazes generate in under 5 seconds (typically <5ms)
+
+## 🛠 Tech Stack
+
+- **Framework**: Next.js 15.1 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: Shadcn UI
+- **Runtime**: Node.js
+
+## 📋 Prerequisites
+
+- Node.js 18.x or higher
+- npm, yarn, pnpm, or bun package manager
+
+## 🚀 Local Development Setup
+
+1. **Clone the repository** (or navigate to the project directory):
+
+```bash
+cd /path/to/maze
+```
+
+2. **Install dependencies**:
+
+```bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+```
+
+3. **Run the development server**:
 
 ```bash
 npm run dev
@@ -10,27 +55,395 @@ npm run dev
 yarn dev
 # or
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. **Open your browser**:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Navigate to [http://localhost:3000](http://localhost:3000) to see the application.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+5. **Start generating mazes**:
+   - Select a difficulty level
+   - Click "Generate Maze"
+   - Use "Print Maze" to print your creation
 
-## Learn More
+## 🏗 Building for Production
 
-To learn more about Next.js, take a look at the following resources:
+### Create Production Build
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+This command:
+- Compiles TypeScript
+- Optimizes assets
+- Generates static pages where possible
+- Creates an optimized production build in `.next` directory
 
-## Deploy on Vercel
+### Test Production Build Locally
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run build
+npm start
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The production server will start on `http://localhost:3000`.
+
+## 🌐 Deploying to VPS
+
+### Option 1: Using PM2 (Recommended)
+
+1. **Install PM2 on your VPS**:
+
+```bash
+npm install -g pm2
+```
+
+2. **Transfer your project to the VPS**:
+
+```bash
+# Using rsync
+rsync -avz --exclude 'node_modules' --exclude '.next' ./ user@your-vps-ip:/path/to/maze
+
+# Or using git
+ssh user@your-vps-ip
+cd /path/to/maze
+git pull origin main
+```
+
+3. **Install dependencies on VPS**:
+
+```bash
+ssh user@your-vps-ip
+cd /path/to/maze
+npm install
+```
+
+4. **Build the application**:
+
+```bash
+npm run build
+```
+
+5. **Start with PM2**:
+
+```bash
+pm2 start npm --name "maze-generator" -- start
+pm2 save
+pm2 startup
+```
+
+6. **Configure DNS for subdomain**:
+
+Before configuring Nginx, set up a DNS A record:
+
+```
+Type: A
+Name: xyz (or your chosen subdomain)
+Value: your-vps-ip-address
+TTL: 3600 (or auto)
+```
+
+This creates `xyz.domain.com` pointing to your VPS.
+
+7. **Configure Nginx as reverse proxy** (create `/etc/nginx/sites-available/maze`):
+
+```nginx
+server {
+    listen 80;
+    server_name xyz.domain.com;
+
+    # Logging
+    access_log /var/log/nginx/maze_access.log;
+    error_log /var/log/nginx/maze_error.log;
+
+    # Proxy settings for Next.js app
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        
+        # Increase timeouts for maze generation
+        proxy_read_timeout 60s;
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+    }
+
+    # Optional: Serve static files directly (for optimization)
+    location /_next/static {
+        proxy_pass http://localhost:3000;
+        proxy_cache_valid 200 60m;
+        add_header Cache-Control "public, immutable";
+    }
+}
+```
+
+8. **Enable the site and restart Nginx**:
+
+```bash
+# Create symbolic link to enable the site
+sudo ln -s /etc/nginx/sites-available/maze /etc/nginx/sites-enabled/
+
+# Test Nginx configuration for syntax errors
+sudo nginx -t
+
+# If test is successful, restart Nginx
+sudo systemctl restart nginx
+```
+
+9. **Setup SSL with Let's Encrypt** (recommended for production):
+
+```bash
+# Install Certbot if not already installed
+sudo apt update
+sudo apt install certbot python3-certbot-nginx -y
+
+# Obtain and install SSL certificate for your subdomain
+sudo certbot --nginx -d xyz.domain.com
+
+# Certbot will automatically:
+# - Obtain the SSL certificate
+# - Update Nginx configuration
+# - Set up auto-renewal
+
+# Test automatic renewal
+sudo certbot renew --dry-run
+```
+
+After SSL is configured, your Nginx config will be automatically updated to:
+
+```nginx
+server {
+    server_name xyz.domain.com;
+
+    access_log /var/log/nginx/maze_access.log;
+    error_log /var/log/nginx/maze_error.log;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        proxy_read_timeout 60s;
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+    }
+
+    location /_next/static {
+        proxy_pass http://localhost:3000;
+        proxy_cache_valid 200 60m;
+        add_header Cache-Control "public, immutable";
+    }
+
+    listen 443 ssl;
+    ssl_certificate /etc/letsencrypt/live/xyz.domain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/xyz.domain.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}
+
+server {
+    if ($host = xyz.domain.com) {
+        return 301 https://$host$request_uri;
+    }
+
+    listen 80;
+    server_name xyz.domain.com;
+    return 404;
+}
+```
+
+10. **Verify PM2 is running and check the application**:
+
+```bash
+# Check PM2 status
+pm2 status
+
+# View logs
+pm2 logs maze-generator
+
+# Restart if needed
+pm2 restart maze-generator
+
+# Ensure PM2 starts on system boot
+pm2 startup
+pm2 save
+```
+
+11. **Test your subdomain**:
+
+```bash
+# Test HTTP (should redirect to HTTPS after SSL setup)
+curl -I http://xyz.domain.com
+
+# Test HTTPS
+curl -I https://xyz.domain.com
+```
+
+Your application should now be accessible at `https://xyz.domain.com`!
+
+### Option 2: Using Docker
+
+1. **Create `Dockerfile` in project root**:
+
+```dockerfile
+FROM node:18-alpine AS base
+
+# Install dependencies only when needed
+FROM base AS deps
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN npm run build
+
+# Production image
+FROM base AS runner
+WORKDIR /app
+ENV NODE_ENV production
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+EXPOSE 3000
+ENV PORT 3000
+
+CMD ["node", "server.js"]
+```
+
+2. **Update `next.config.ts` for standalone output**:
+
+```typescript
+const nextConfig = {
+  output: 'standalone',
+};
+```
+
+3. **Build and run Docker container**:
+
+```bash
+docker build -t maze-generator .
+docker run -p 3000:3000 maze-generator
+```
+
+### Option 3: Using Vercel (Easiest)
+
+1. **Install Vercel CLI**:
+
+```bash
+npm install -g vercel
+```
+
+2. **Deploy**:
+
+```bash
+vercel
+```
+
+Follow the prompts to complete deployment.
+
+## 📁 Project Structure
+
+```
+maze/
+├── src/
+│   ├── app/
+│   │   ├── layout.tsx          # Root layout
+│   │   ├── page.tsx            # Main application page
+│   │   └── globals.css         # Global styles + print styles
+│   ├── components/
+│   │   ├── ui/                 # Shadcn UI components
+│   │   ├── difficulty-selector.tsx
+│   │   └── maze-canvas.tsx
+│   └── lib/
+│       ├── maze-generator.ts   # Core maze algorithm
+│       └── utils.ts            # Utility functions
+├── public/                     # Static assets
+├── .ai/                        # Project documentation
+├── tailwind.config.ts          # Tailwind configuration
+├── tsconfig.json              # TypeScript configuration
+└── package.json               # Dependencies
+```
+
+## 🧪 Algorithm Details
+
+The maze generator uses the **Recursive Backtracker algorithm**, a depth-first search (DFS) approach:
+
+1. Initialize a grid with all walls closed
+2. Start from a random cell and mark it as visited
+3. Randomly choose an unvisited neighbor
+4. Remove the wall between current cell and chosen neighbor
+5. Recursively repeat from the neighbor
+6. Backtrack when no unvisited neighbors remain
+
+This creates a "perfect maze" with exactly one path between any two points—no loops or isolated sections.
+
+## 🎨 UI Components
+
+- **Button**: Primary action buttons for generating and printing
+- **Card**: Container components for clean layout structure
+- **RadioGroup**: Difficulty level selection
+- **Label**: Form field labels
+
+## 📝 Environment Variables
+
+No environment variables are required for basic operation. The application runs entirely client-side after initial page load.
+
+## 🐛 Troubleshooting
+
+### Port Already in Use
+
+If port 3000 is occupied:
+
+```bash
+PORT=3001 npm run dev
+```
+
+### Build Errors
+
+Clear the build cache:
+
+```bash
+rm -rf .next
+npm run build
+```
+
+### Node Version Issues
+
+Ensure you're using Node.js 18 or higher:
+
+```bash
+node --version
+```
+
+## 📄 License
+
+This project is open source and available for educational and commercial use.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit issues or pull requests.
+
+## 📞 Support
+
+For questions or issues, please open an issue in the repository.
