@@ -1,0 +1,17 @@
+---
+alwaysApply: true
+---
+- Use Shadcn UI, Radix, and Tailwind Aria for components and styling
+- Implement responsive design with Tailwind CSS; use a mobile-first approach
+- Utilize Tailwind CSS utility classes for styling components.
+- Follow Shadcn UI component guidelines and best practices.
+- Ensure UI is responsive and accessible.
+
+
+- Use TailwindCSS utility classes for styling
+- Avoid custom CSS unless absolutely necessary
+- Maintain consistent order of utility classes
+- Use Tailwind's responsive variants for adaptive designs
+- Leverage DaisyUI components for rapid development
+- Customize DaisyUI components only when necessary
+- Define and use design tokens in tailwind.config.js

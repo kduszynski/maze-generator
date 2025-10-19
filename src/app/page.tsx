@@ -1,101 +1,159 @@
-import Image from "next/image";
+'use client';
 
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { DifficultySelector } from '@/components/difficulty-selector';
+import { MazeCanvas } from '@/components/maze-canvas';
+import { generateMaze, type DifficultyLevel, type MazeResult } from '@/lib/maze-generator';
+
+/**
+ * Home Page - Maze Generator Application
+ * 
+ * Main application page that allows users to:
+ * - Select difficulty level
+ * - Generate mazes
+ * - View generated mazes
+ * - Print mazes
+ */
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [difficulty, setDifficulty] = useState<DifficultyLevel>(2); // Default: Easy
+  const [mazeResult, setMazeResult] = useState<MazeResult | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  /**
+   * Handle maze generation
+   * Creates a new maze based on the selected difficulty level
+   */
+  const handleGenerateMaze = () => {
+    setIsGenerating(true);
+    
+    // Use setTimeout to allow UI to update before heavy computation
+    setTimeout(() => {
+      const result = generateMaze(difficulty);
+      setMazeResult(result);
+      setIsGenerating(false);
+    }, 50);
+  };
+
+  /**
+   * Handle print functionality
+   * Opens the browser's print dialog
+   */
+  const handlePrint = () => {
+    window.print();
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4 sm:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8 no-print">
+          <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-3">
+            Maze Generator
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Generate perfect mazes with adjustable difficulty levels. Each maze has exactly one solution path from start to finish.
+          </p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Control Panel */}
+          <div className="lg:col-span-1 no-print">
+            <Card>
+              <CardHeader>
+                <CardTitle>Maze Settings</CardTitle>
+                <CardDescription>
+                  Configure your maze parameters
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <DifficultySelector
+                  value={difficulty}
+                  onChange={setDifficulty}
+                />
+
+                <div className="space-y-3">
+                  <Button
+                    onClick={handleGenerateMaze}
+                    disabled={isGenerating}
+                    className="w-full"
+                    size="lg"
+                  >
+                    {isGenerating ? 'Generating...' : 'Generate Maze'}
+                  </Button>
+
+                  {mazeResult && (
+                    <Button
+                      onClick={handlePrint}
+                      variant="outline"
+                      className="w-full"
+                      size="lg"
+                    >
+                      Print Maze
+                    </Button>
+                  )}
+                </div>
+
+                <div className="text-sm text-muted-foreground space-y-2 pt-4 border-t">
+                  <p className="flex items-center gap-2">
+                    <span className="inline-block w-3 h-3 bg-green-500 rounded-full"></span>
+                    Green circle = Start
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <span className="inline-block w-3 h-3 bg-red-500 rounded-full"></span>
+                    Red circle = End
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Maze Display Area */}
+          <div className="lg:col-span-2">
+            <Card className="h-full">
+              <CardHeader className="no-print">
+                <CardTitle>Generated Maze</CardTitle>
+                <CardDescription>
+                  {mazeResult
+                    ? 'Your maze is ready! You can print it using the Print button.'
+                    : 'Select a difficulty level and click Generate to create your maze.'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {mazeResult ? (
+                  <div className="flex justify-center">
+                    <MazeCanvas
+                      maze={mazeResult.maze}
+                      start={mazeResult.start}
+                      end={mazeResult.end}
+                    />
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center min-h-[400px] text-center">
+                    <div className="space-y-4">
+                      <div className="text-6xl">🧩</div>
+                      <p className="text-muted-foreground text-lg">
+                        No maze generated yet
+                      </p>
+                      <p className="text-sm text-muted-foreground max-w-md">
+                        Choose your difficulty level and click the Generate button to create a new maze puzzle.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <footer className="text-center mt-8 text-sm text-muted-foreground no-print">
+          <p>
+            duszynki.dev
+          </p>
+        </footer>
+      </div>
     </div>
   );
 }
