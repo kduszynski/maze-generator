@@ -125,10 +125,73 @@ npm install
 npm run build
 ```
 
-5. **Start with PM2**:
+5. **Start with PM2 (default port 3000)**:
 
 ```bash
 pm2 start npm --name "maze-generator" -- start
+pm2 save
+pm2 startup
+```
+
+**To run on a custom port (e.g., port 3005)**, use one of these methods:
+
+**Method 1: Using environment variable with PM2**
+
+```bash
+PORT=3005 pm2 start npm --name "maze-generator" -- start
+pm2 save
+pm2 startup
+```
+
+**Method 2: Using PM2 ecosystem file (recommended for multiple configs)**
+
+Create `ecosystem.config.js` in your project root:
+
+```javascript
+module.exports = {
+  apps: [{
+    name: 'maze-generator',
+    script: 'npm',
+    args: 'start',
+    env: {
+      NODE_ENV: 'production',
+      PORT: 3005
+    },
+    instances: 1,
+    autorestart: true,
+    watch: false,
+    max_memory_restart: '1G',
+  }]
+};
+```
+
+Then start with:
+
+```bash
+pm2 start ecosystem.config.js
+pm2 save
+pm2 startup
+```
+
+**Method 3: Using package.json script**
+
+Add a custom start script in `package.json`:
+
+```json
+{
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "start:3005": "next start -p 3005"
+  }
+}
+```
+
+Then start with PM2:
+
+```bash
+pm2 start npm --name "maze-generator" -- run start:3005
 pm2 save
 pm2 startup
 ```
@@ -148,6 +211,8 @@ This creates `xyz.domain.com` pointing to your VPS.
 
 7. **Configure Nginx as reverse proxy** (create `/etc/nginx/sites-available/maze`):
 
+> **Note**: If you configured your app to run on port 3005, change `proxy_pass http://localhost:3000;` to `proxy_pass http://localhost:3005;` in all location blocks below.
+
 ```nginx
 server {
     listen 80;
@@ -159,7 +224,7 @@ server {
 
     # Proxy settings for Next.js app
     location / {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://localhost:3000;  # Change to 3005 if using custom port
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -177,7 +242,7 @@ server {
 
     # Optional: Serve static files directly (for optimization)
     location /_next/static {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://localhost:3000;  # Change to 3005 if using custom port
         proxy_cache_valid 200 60m;
         add_header Cache-Control "public, immutable";
     }
@@ -216,7 +281,7 @@ sudo certbot --nginx -d xyz.domain.com
 sudo certbot renew --dry-run
 ```
 
-After SSL is configured, your Nginx config will be automatically updated to:
+After SSL is configured, your Nginx config will be automatically updated to (remember to use port 3005 if you configured it):
 
 ```nginx
 server {
@@ -226,7 +291,7 @@ server {
     error_log /var/log/nginx/maze_error.log;
 
     location / {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://localhost:3000;  # Change to 3005 if using custom port
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -241,7 +306,7 @@ server {
     }
 
     location /_next/static {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://localhost:3000;  # Change to 3005 if using custom port
         proxy_cache_valid 200 60m;
         add_header Cache-Control "public, immutable";
     }
@@ -273,12 +338,24 @@ pm2 status
 # View logs
 pm2 logs maze-generator
 
+# Check which port the app is running on
+pm2 env maze-generator | grep PORT
+
 # Restart if needed
 pm2 restart maze-generator
 
 # Ensure PM2 starts on system boot
 pm2 startup
 pm2 save
+```
+
+**Verify the app is listening on the correct port:**
+
+```bash
+# Check if the app is listening on port 3005 (or 3000)
+sudo netstat -tlnp | grep :3005
+# or
+sudo lsof -i :3005
 ```
 
 11. **Test your subdomain**:
@@ -289,9 +366,22 @@ curl -I http://xyz.domain.com
 
 # Test HTTPS
 curl -I https://xyz.domain.com
+
+# Test directly on the server (useful for debugging)
+curl http://localhost:3005  # Change to your configured port
 ```
 
 Your application should now be accessible at `https://xyz.domain.com`!
+
+### Quick Reference: Port Configuration Summary
+
+| Method | Command | Configuration File |
+|--------|---------|-------------------|
+| Environment Variable | `PORT=3005 pm2 start npm --name "maze-generator" -- start` | None |
+| PM2 Ecosystem | `pm2 start ecosystem.config.js` | `ecosystem.config.js` |
+| Package.json Script | `pm2 start npm --name "maze-generator" -- run start:3005` | `package.json` |
+
+**Don't forget**: After changing the port, update all `proxy_pass` directives in your Nginx configuration from `http://localhost:3000` to `http://localhost:3005`.
 
 ### Option 2: Using Docker
 

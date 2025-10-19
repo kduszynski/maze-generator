@@ -3,7 +3,6 @@
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import type { DifficultyLevel } from '@/lib/maze-generator';
-import { DIFFICULTY_DIMENSIONS } from '@/lib/maze-generator';
 
 interface DifficultySelectorProps {
   value: DifficultyLevel;
