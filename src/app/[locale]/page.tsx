@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DifficultySelector } from '@/components/difficulty-selector';
 import { MazeCanvas } from '@/components/maze-canvas';
+import { LanguageSwitcher } from '@/components/language-switcher';
 import { generateMaze, type DifficultyLevel, type MazeResult } from '@/lib/maze-generator';
 
 /**
@@ -15,8 +17,10 @@ import { generateMaze, type DifficultyLevel, type MazeResult } from '@/lib/maze-
  * - Generate mazes
  * - View generated mazes
  * - Print mazes
+ * - Switch between English and Polish languages
  */
 export default function Home() {
+  const t = useTranslations('home');
   const [difficulty, setDifficulty] = useState<DifficultyLevel>(2); // Default: Easy
   const [mazeResult, setMazeResult] = useState<MazeResult | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -49,11 +53,14 @@ export default function Home() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8 no-print">
-          <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-3">
-            Maze Generator
-          </h1>
+          <div className="flex justify-center items-center gap-4 mb-3">
+            <h1 className="text-4xl sm:text-5xl font-bold text-foreground">
+              {t('title')}
+            </h1>
+            <LanguageSwitcher />
+          </div>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Generate perfect mazes with adjustable difficulty levels. Each maze has exactly one solution path from start to finish.
+            {t('description')}
           </p>
         </div>
 
@@ -62,9 +69,9 @@ export default function Home() {
           <div className="lg:col-span-1 no-print">
             <Card>
               <CardHeader>
-                <CardTitle>Maze Settings</CardTitle>
+                <CardTitle>{t('settings.title')}</CardTitle>
                 <CardDescription>
-                  Configure your maze parameters
+                  {t('settings.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -80,7 +87,7 @@ export default function Home() {
                     className="w-full"
                     size="lg"
                   >
-                    {isGenerating ? 'Generating...' : 'Generate Maze'}
+                    {isGenerating ? t('buttons.generating') : t('buttons.generate')}
                   </Button>
 
                   {mazeResult && (
@@ -90,7 +97,7 @@ export default function Home() {
                       className="w-full"
                       size="lg"
                     >
-                      Print Maze
+                      {t('buttons.print')}
                     </Button>
                   )}
                 </div>
@@ -98,11 +105,11 @@ export default function Home() {
                 <div className="text-sm text-muted-foreground space-y-2 pt-4 border-t">
                   <p className="flex items-center gap-2">
                     <span className="inline-block w-3 h-3 bg-green-500 rounded-full"></span>
-                    Green circle = Start
+                    {t('legend.start')}
                   </p>
                   <p className="flex items-center gap-2">
                     <span className="inline-block w-3 h-3 bg-red-500 rounded-full"></span>
-                    Red circle = End
+                    {t('legend.end')}
                   </p>
                 </div>
               </CardContent>
@@ -113,11 +120,11 @@ export default function Home() {
           <div className="lg:col-span-2">
             <Card className="h-full">
               <CardHeader className="no-print">
-                <CardTitle>Generated Maze</CardTitle>
+                <CardTitle>{t('display.title')}</CardTitle>
                 <CardDescription>
                   {mazeResult
-                    ? 'Your maze is ready! You can print it using the Print button.'
-                    : 'Select a difficulty level and click Generate to create your maze.'}
+                    ? t('display.ready')
+                    : t('display.prompt')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -134,10 +141,10 @@ export default function Home() {
                     <div className="space-y-4">
                       <div className="text-6xl">🧩</div>
                       <p className="text-muted-foreground text-lg">
-                        No maze generated yet
+                        {t('display.noMaze')}
                       </p>
                       <p className="text-sm text-muted-foreground max-w-md">
-                        Choose your difficulty level and click the Generate button to create a new maze puzzle.
+                        {t('display.instructions')}
                       </p>
                     </div>
                   </div>
@@ -150,7 +157,7 @@ export default function Home() {
         {/* Footer */}
         <footer className="text-center mt-8 text-sm text-muted-foreground no-print">
           <p>
-            duszynki.dev
+            {t('footer')}
           </p>
         </footer>
       </div>

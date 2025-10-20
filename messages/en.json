@@ -1,0 +1,47 @@
+{
+  "home": {
+    "title": "Maze Generator",
+    "description": "Generate perfect mazes with adjustable difficulty levels. Each maze has exactly one solution path from start to finish.",
+    "settings": {
+      "title": "Maze Settings",
+      "description": "Configure your maze parameters"
+    },
+    "difficulty": {
+      "title": "Difficulty Level",
+      "veryEasy": "Very Easy",
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard",
+      "veryHard": "Very Hard",
+      "grid": {
+        "veryEasy": "10×10 grid",
+        "easy": "15×15 grid",
+        "medium": "25×25 grid",
+        "hard": "40×40 grid",
+        "veryHard": "60×60 grid"
+      }
+    },
+    "buttons": {
+      "generate": "Generate Maze",
+      "generating": "Generating...",
+      "print": "Print Maze"
+    },
+    "legend": {
+      "start": "Green circle = Start",
+      "end": "Red circle = End"
+    },
+    "display": {
+      "title": "Generated Maze",
+      "ready": "Your maze is ready! You can print it using the Print button.",
+      "prompt": "Select a difficulty level and click Generate to create your maze.",
+      "noMaze": "No maze generated yet",
+      "instructions": "Choose your difficulty level and click the Generate button to create a new maze puzzle."
+    },
+    "footer": "duszynski.dev"
+  },
+  "metadata": {
+    "title": "Maze Generator - Create Perfect Printable Mazes",
+    "description": "Generate perfect mazes with adjustable difficulty levels. Create printable black and white mazes for puzzles, education, or entertainment."
+  }
+}
+

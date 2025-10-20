@@ -1,0 +1,47 @@
+{
+  "home": {
+    "title": "Generator Labiryntów",
+    "description": "Generuj doskonałe labirynty z regulowanym poziomem trudności. Każdy labirynt ma dokładnie jedną ścieżkę rozwiązania od startu do mety.",
+    "settings": {
+      "title": "Ustawienia Labiryntu",
+      "description": "Skonfiguruj parametry labiryntu"
+    },
+    "difficulty": {
+      "title": "Poziom Trudności",
+      "veryEasy": "Bardzo Łatwy",
+      "easy": "Łatwy",
+      "medium": "Średni",
+      "hard": "Trudny",
+      "veryHard": "Bardzo Trudny",
+      "grid": {
+        "veryEasy": "Siatka 10×10",
+        "easy": "Siatka 15×15",
+        "medium": "Siatka 25×25",
+        "hard": "Siatka 40×40",
+        "veryHard": "Siatka 60×60"
+      }
+    },
+    "buttons": {
+      "generate": "Generuj Labirynt",
+      "generating": "Generowanie...",
+      "print": "Drukuj Labirynt"
+    },
+    "legend": {
+      "start": "Zielone kółko = Start",
+      "end": "Czerwone kółko = Meta"
+    },
+    "display": {
+      "title": "Wygenerowany Labirynt",
+      "ready": "Twój labirynt jest gotowy! Możesz go wydrukować używając przycisku Drukuj.",
+      "prompt": "Wybierz poziom trudności i kliknij Generuj, aby stworzyć labirynt.",
+      "noMaze": "Nie wygenerowano jeszcze labiryntu",
+      "instructions": "Wybierz poziom trudności i kliknij przycisk Generuj, aby stworzyć nową łamigłówkę labiryntową."
+    },
+    "footer": "duszynski.dev"
+  },
+  "metadata": {
+    "title": "Generator Labiryntów - Twórz Doskonałe Labirynty do Druku",
+    "description": "Generuj doskonałe labirynty z regulowanym poziomem trudności. Twórz czarno-białe labirynty do druku na potrzeby łamigłówek, edukacji lub rozrywki."
+  }
+}
+
